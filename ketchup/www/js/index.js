@@ -19,7 +19,38 @@
 var app = {
     initialize: function() {
         this.bindEvents();
-        this.tempLogic(5, 5);
+
+        var self = this;
+
+        self.centerY = 500;
+        self.centerX = 500;
+        self.ketchup = {
+            y: self.centerY,
+            x: self.centerX
+        };
+        self.highYboundary = 1000;
+        self.lowYboundary = 0;
+        self.speed = 10;
+        self.shift = 10;
+        self.oldCoordinates = {};
+
+        window.setInterval(function() {
+            var accelerometerError = function() {
+                console.log('Daebalo sa to');
+            };
+
+            var accelerometerSuccess = function(acceleration) {
+                var newCoordinates = {
+                    x: acceleration.x,
+                    y: acceleration.y,
+                    z: acceleration.z
+                };
+                self.accelerometerSuccess(self.oldCoordinates, newCoordinates);
+                self.oldCoordinates = newCoordinates;
+            };
+
+            navigator.accelerometer.getCurrentAcceleration(accelerometerSuccess, accelerometerError);
+        }, 100);
     },
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
@@ -30,12 +61,36 @@ var app = {
     receivedEvent: function(id) {
         console.log('Received Event: ' + id);
     },
-    tempLogic: function(x, y) {
-        $('#ketchup').css('transform', 'translate(' + x + 'px, ' + y + 'px)');
-        if (x > 100) {
-            x = y = 0;
+    accelerometerSuccess: function(oldCoordinates, newCoordinates) {
+        var deltaY = abs(oldCoordinates.y - newCoordinates.y);
+
+        var y = 0;
+        var small = 100;
+
+        if (deltaY < small) {
+            if (self.ketchup.y > self.centerY) {
+                //TODO smooth animation yo
+                self.ketchup.y = self.centerY;
+            } else {
+                self.ketchup.y = self.centerY;
+            }
+        } else {
+
+            if( !(self.ketchup.y > self.highYboundary) && !(self.ketchup.y > self.lowYboundary) ){
+
+                if( oldCoordinates.y < newCoordinates.y) {
+                    self.ketchup.y += deltaY / self.speed * self.shift;
+                } else {
+                    self.ketchup.y -= deltaY / self.speed * self.shift;
+                }
+            }
+
         }
-        this.tempLogic(x + 5, y + 5);
+
+        console.log('x: ' + self.ketchup.x);
+        console.log('y: ' + self.ketchup.y);
+        $('#ketchup').css('transform', 'translate(' + self.ketchup.x + 'px, ' + self.ketchup.y + 'px)');
+
     }
 };
 
