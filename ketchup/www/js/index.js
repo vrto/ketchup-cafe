@@ -45,10 +45,13 @@ var app = {
                     y: acceleration.y,
                     z: acceleration.z
                 };
-                self.accelerometerSuccess(self.oldCoordinates, newCoordinates);
+                //self.accelerometerSuccess(self.oldCoordinates, newCoordinates);
+                var info = 'X: ' + acceleration.x + ' Y: ' + acceleration.y + ' Z: ' + acceleration.z;
+                $('#debug-info').val(info);
                 self.oldCoordinates = newCoordinates;
             };
 
+            console.log('calling accelerometer');
             navigator.accelerometer.getCurrentAcceleration(accelerometerSuccess, accelerometerError);
         }, 100);
     },
